@@ -3,6 +3,11 @@ import dotenv from 'dotenv';
 import sequelize from "../config/db.js";
 import User from './models/user.js';
 import Task from './models/task.js';
+import userRoutes from './routes/userRoutes.js';
+import taskRoutes from './routes/taskRoutes.js';
+
+
+
 
 dotenv.config();
 
@@ -33,6 +38,7 @@ const startServer = async () => {
     console.error("❌ Eroare la pornirea serverului:", error);
   }
 };
-
+app.use('/api/users', userRoutes);
+app.use('/api/tasks', taskRoutes);
 
 startServer();
