@@ -71,5 +71,15 @@ router.put('/:id/close', async (req, res) => {
     }
 });
 
+//vezi taskurile unui utilizator
+
+router.get('/user/:userId', async (req, res) => {
+    try {
+        const tasks = await Task.findAll({ where: { assignedUserId: req.params.userId } });
+        res.json(tasks);
+    } catch (error) {
+        res.status(500).json({ error: 'Eroare la preluarea task-urilor utilizatorului' });
+    }
+});
 
 export default router;
