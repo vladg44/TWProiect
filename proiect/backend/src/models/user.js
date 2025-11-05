@@ -1,10 +1,12 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../config/db.js";
+import Team from "./team.js";
 
 const User = sequelize.define("User", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
+    
     autoIncrement: true,
     },
     name: {
@@ -27,7 +29,20 @@ const User = sequelize.define("User", {
     },
     managerId: {
         type: DataTypes.INTEGER,
-        allowNull: true,}
+        allowNull: true,},
+
+        teamId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    references: {
+      model: Team,
+      key: 'id',
+    }
+  }
     });
+    //relatii
+    Team.hasMany(User, { foreignKey: "teamId" });
+    User.belongsTo(Team, { foreignKey: "teamId" });
+    
 export default User;
 

@@ -3,9 +3,10 @@ import dotenv from 'dotenv';
 import sequelize from "../config/db.js";
 import User from './models/user.js';
 import Task from './models/task.js';
+import Team from './models/team.js';
 import userRoutes from './routes/userRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
-
+import teamRoutes from './routes/teamRoutes.js';
 
 
 
@@ -40,5 +41,6 @@ const startServer = async () => {
 };
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/teams', teamRoutes);
 
 startServer();

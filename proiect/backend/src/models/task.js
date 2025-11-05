@@ -8,22 +8,28 @@ const Task = sequelize.define("Task", {
     primaryKey: true,
     autoIncrement: true,
   },
-    title: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-    },
-    status: {
-        type: DataTypes.ENUM("OPEN","PENDING","COMPLETED","CLOSED"),
-        allowNull: false,
-        defaultValue: "OPEN",
-    }
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.ENUM("OPEN", "PENDING", "COMPLETED", "CLOSED"),
+    allowNull: false,
+    defaultValue: "OPEN",
+  },
+  dueDate: { 
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  // 'assignedUserId' este adaugat automat de relatia de mai jos
 });
 
-User.hasMany(Task, { foreignKey: "assignedTo" });
-Task.belongsTo(User,{as: "executor", foreignKey: "assignedTo"});
+// Relatii actualizate
+User.hasMany(Task, { foreignKey: "assignedUserId" });
+Task.belongsTo(User, { as: "assignedUser", foreignKey: "assignedUserId" });
 
 export default Task;
