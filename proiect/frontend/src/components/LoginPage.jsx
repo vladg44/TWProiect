@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './LoginPage.css';
+import api from '../api';
 
 const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -12,11 +13,22 @@ const LoginPage = ({ onLogin }) => {
       setError('Please enter both email and password.');
       return;
     }
-    // Aici va veni logica de autentificare efectiva (apel catre API)
-    // Pentru acest exemplu, simulam un login de succes
-    console.log('Logging in with:', { email, password });
-    setError('');
-    onLogin({ email }); // Trimitem un obiect user simulat catre App.jsx
+    // Apelam API-ul de autentificare
+    api.post('/auth/login', { email, password })
+      .then((res) => {
+        const user = res.data.user;
+        // Salvam user si user id in localStorage si setam header-ul pentru viitoarele cereri
+        localStorage.setItem('userId', user.id);
+        localStorage.setItem('user', JSON.stringify(user));
+        api.defaults.headers.common['X-User-ID'] = user.id;
+        setError('');
+        onLogin(user);
+      })
+      .catch((err) => {
+        console.error('Login error', err?.response?.data || err.message);
+        const msg = err?.response?.data?.error || 'Login failed';
+        setError(msg);
+      });
   };
 
   return (

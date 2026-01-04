@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f2f5;
+  background-color: #E0B0FF ;
 }
 
 .login-form {
@@ -45,7 +45,7 @@ button {
   width: 100%;
   padding: 0.75rem;
   border: none;
-  background-color: #007bff;
+  background-color: #7e6191;
   color: white;
   font-size: 1rem;
   font-weight: 600;
@@ -55,7 +55,7 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #7e6191;
 }
 
 .error-message {

@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import sequelize from "../config/db.js";
 import User from './models/user.js';
@@ -7,6 +8,7 @@ import Team from './models/team.js';
 import userRoutes from './routes/userRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import teamRoutes from './routes/teamRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 
 
@@ -17,6 +19,13 @@ const PORT = process.env.PORT || 3000;
 
 
 app.use(express.json());
+
+// Enable CORS for frontend (adjust origin as needed)
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-User-ID']
+}));
 
 const startServer = async () => {
   try {
@@ -42,5 +51,6 @@ const startServer = async () => {
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/auth', authRoutes);
 
 startServer();

@@ -1,9 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginPage from './components/LoginPage';
+import api from './api';
 import './App.css';
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const raw = localStorage.getItem('user');
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    if (user && user.id) {
+      api.defaults.headers.common['X-User-ID'] = user.id;
+    }
+  }, [user]);
 
   const handleLogin = (loggedInUser) => {
     setUser(loggedInUser);
@@ -11,6 +25,9 @@ function App() {
 
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
+    delete api.defaults.headers.common['X-User-ID'];
   };
 
   return (
