@@ -1,19 +1,23 @@
 import express from 'express';
 import User from '../models/user.js';
+import { getUser, isAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// --- Grupat pentru calea '/' ---
+router.use(getUser);
+
 router.route('/')
   .get(async (req, res) => {
     try {
-      const users = await User.findAll();
+      const users = await User.findAll({
+        attributes: { exclude: ['password'] }
+      });
       res.json(users);
     } catch (error) {
       res.status(500).json({ error: 'Eroare la preluarea utilizatorilor' });
     }
   })
-  .post(async (req, res) => {
+  .post(isAdmin, async (req, res) => {
     try {
       const { name, email, password, role, managerId } = req.body;
 
@@ -34,11 +38,12 @@ router.route('/')
     }
   });
 
-// --- Grupat pentru calea '/:id' ---
 router.route('/:id')
   .get(async (req, res) => {
     try {
-      const user = await User.findByPk(req.params.id);
+      const user = await User.findByPk(req.params.id, {
+        attributes: { exclude: ['password'] }
+      });
       if (!user)
         return res.status(404).json({ error: 'Utilizatorul nu a fost gasit' });
       res.json(user);
@@ -47,11 +52,17 @@ router.route('/:id')
       res.status(500).json({ error: 'Eroare la cautarea utilizatorului' });
     }
   })
-  .put(async (req, res) => {
+  .put(isAdmin, async (req, res) => {
     try {
       const user = await User.findByPk(req.params.id);
       if (!user)
-        return res.status(404).json({ error: 'Utilizatorul nu a fost gasit' });
+        return res.status(440).json({ error: 'Utilizatorul nu a fost gasit' });
+
+      // Asiguram ca parola nu este trimisa goala accidental
+      if (req.body.password === '' || req.body.password === null) {
+        delete req.body.password;
+      }
+      
       await user.update(req.body);
       res.json(user);
 
@@ -60,7 +71,7 @@ router.route('/:id')
       res.status(500).json({ error: 'Eroare la actualizarea utilizatorului' });
     }
   })
-  .delete(async (req, res) => {
+  .delete(isAdmin, async (req, res) => {
     try {
       const user = await User.findByPk(req.params.id);
       if (!user)

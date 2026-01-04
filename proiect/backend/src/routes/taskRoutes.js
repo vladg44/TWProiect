@@ -1,12 +1,19 @@
 import express from 'express';
 import Task from '../models/task.js';
 import User from '../models/user.js';
+import { getUser, isManager, isManagerOrAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Aplicam `getUser` pentru TOATE rutele din acest fisier.
+// Acum, fiecare cerere catre /api/tasks/... trebuie sa aiba header-ul X-User-ID.
+router.use(getUser);
+
+
 // --- Grupat pentru calea '/' ---
 router.route('/')
-    .get(async (req, res) => {
+    // Doar managerii si adminii pot vedea TOATE taskurile
+    .get(isManagerOrAdmin, async (req, res) => {
         try {
             const tasks = await Task.findAll({ include: { model: User, as: 'assignedUser' } });
             res.json(tasks);
@@ -14,10 +21,12 @@ router.route('/')
             res.status(500).json({ error: 'Eroare la preluarea task-urilor' });
         }
     })
-    .post(async (req, res) => {
+    // Doar managerii pot crea un task nou
+    .post(isManager, async (req, res) => {
         try {
-            const { title, description, status, dueDate, assignedUserId } = req.body;
-            const newTask = await Task.create({ title, description, status, dueDate, assignedUserId });
+            const { title, description, dueDate, assignedUserId } = req.body;
+            // Fortam statusul 'OPEN' la creare, conform cerintelor
+            const newTask = await Task.create({ title, description, status: 'OPEN', dueDate, assignedUserId });
             res.status(201).json(newTask);
         }
         catch (error) {
@@ -28,8 +37,8 @@ router.route('/')
 
 // --- Rutele unice raman neschimbate ---
 
-//put alocare task unui utilizator
-router.put('/:id/assign', async (req, res) => {
+//put alocare task unui utilizator - doar managerii
+router.put('/:id/assign', isManager, async (req, res) => {
     try {
         const task = await Task.findByPk(req.params.id);
         if (!task)
@@ -47,12 +56,17 @@ router.put('/:id/assign', async (req, res) => {
     }
 });
 
-//put marcare task ca finalizat
+//put marcare task ca finalizat - verificam daca e task-ul lui
 router.put('/:id/complete', async (req, res) => {
     try {
         const task = await Task.findByPk(req.params.id);
         if (!task)
             return res.status(404).json({ error: 'Task-ul nu a fost gasit' });
+        
+        // Verificare suplimentara: doar userul asignat poate completa task-ul
+        if (task.assignedUserId !== req.user.id) {
+            return res.status(403).json({ error: 'Nu puteti completa un task care nu va este alocat.'});
+        }
         
         await task.update({ status: 'COMPLETED' });
         res.json({ message: 'Task-ul a fost marcat ca finalizat cu succes', task });
@@ -62,8 +76,8 @@ router.put('/:id/complete', async (req, res) => {
     }
 });
 
-//put inchidere task manager
-router.put('/:id/close', async (req, res) => {
+//put inchidere task manager - doar managerii
+router.put('/:id/close', isManager, async (req, res) => {
     try {
         const task = await Task.findByPk(req.params.id);
         if (!task)
@@ -79,6 +93,13 @@ router.put('/:id/close', async (req, res) => {
 //vezi taskurile unui utilizator
 router.get('/user/:userId', async (req, res) => {
     try {
+        const requestedUserId = parseInt(req.params.userId, 10);
+
+        // Verificare: Un user normal (executant) isi poate vedea doar taskurile proprii.
+        if (req.user.role !== 'manager' && req.user.id !== requestedUserId) {
+             return res.status(403).json({ error: 'Nu aveti permisiunea de a vizualiza task-urile altui utilizator.' });
+        }
+
         const tasks = await Task.findAll({ where: { assignedUserId: req.params.userId } });
         res.json(tasks);
     } catch (error) {
