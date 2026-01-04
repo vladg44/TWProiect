@@ -38,4 +38,48 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// POST /api/auth/register
+router.post('/register', async (req, res) => {
+  try {
+    const { name, email, password, role, managerId } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email și parola sunt necesare.' });
+    }
+
+    const existing = await User.findOne({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ error: 'Email-ul este deja folosit.' });
+    }
+
+    // Validate role if provided
+    const allowedRoles = ['admin', 'manager', 'executor'];
+    const chosenRole = allowedRoles.includes(role) ? role : 'executor';
+
+    const newUser = await User.create({ name, email, password, role: chosenRole, managerId: managerId || null });
+    res.status(201).json({
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        managerId: newUser.managerId || null,
+      }
+    });
+  } catch (error) {
+    console.error('Eroare la register:', error);
+    res.status(500).json({ error: 'Eroare la inregistrare.' });
+  }
+});
+
+// GET /api/auth/managers - list managers (public)
+router.get('/managers', async (req, res) => {
+  try {
+    const managers = await User.findAll({ where: { role: 'manager' }, attributes: ['id', 'name', 'email'] });
+    res.json({ managers });
+  } catch (error) {
+    console.error('Eroare la listarea managerilor:', error);
+    res.status(500).json({ error: 'Eroare la listarea managerilor.' });
+  }
+});
+
 export default router;
