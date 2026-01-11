@@ -177,7 +177,7 @@ const TaskList = ({ user, onLogout }) => {
           </div>
         )}
 
-        {/* ✅ added: history section below */}
+        {/*  history section below */}
         {showHistory && (
           <div className="history-section">
             <h2>Istoric Task-uri</h2>
