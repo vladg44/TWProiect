@@ -55,6 +55,36 @@ router.route('/')
   }
 });
 
+// Manager marchează task COMPLETED -> CLOSED
+router.put('/:id/close', async (req, res) => {
+  try {
+    // doar manager
+    if (req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Doar managerii pot închide task-uri.' });
+    }
+
+    const task = await Task.findByPk(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({ error: 'Task-ul nu a fost găsit.' });
+    }
+
+    if (task.status !== 'COMPLETED') {
+      return res.status(400).json({
+        error: 'Doar task-urile COMPLETED pot fi închise.'
+      });
+    }
+
+    task.status = 'CLOSED';
+    await task.save();
+
+    res.json(task);
+  } catch (error) {
+    res.status(500).json({ error: 'Eroare la închiderea task-ului.' });
+  }
+});
+
+
 router.route('/:id')
   .get(async (req, res) => {
     try {

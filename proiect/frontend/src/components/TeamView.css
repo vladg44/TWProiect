@@ -156,4 +156,31 @@
     align-items: flex-start;
     gap: 10px;
   }
+
+
+  .tasks-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-toggle-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #2d3748;
+  color: white;
+  font-weight: 600;
+}
+
+.history-toggle-btn:hover {
+  opacity: 0.9;
+}
+
+.history-section {
+  margin-top: 24px;
+}
+
 }

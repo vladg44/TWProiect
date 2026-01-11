@@ -8,13 +8,22 @@ const TaskList = ({ user, onLogout }) => {
   const [error, setError] = useState('');
   const [manager, setManager] = useState(null);
 
+  // ✅ added for history
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+
   useEffect(() => {
     fetchTasks();
+    // când se schimbă userul, resetăm istoricul din UI (opțional, dar safe)
+    setShowHistory(false);
+    setHistory([]);
   }, [user.id]);
 
   useEffect(() => {
     if (user.managerId) {
       fetchManager();
+    } else {
+      setManager(null);
     }
   }, [user.managerId]);
 
@@ -41,11 +50,29 @@ const TaskList = ({ user, onLogout }) => {
     }
   };
 
+  // ✅ added: history without new routes (reuses /tasks/user/:id)
+  const fetchHistory = async () => {
+    try {
+      const res = await api.get(`/tasks/user/${user.id}`);
+
+      const hist = res.data.filter(
+        (t) => t.status === 'COMPLETED' || t.status === 'CLOSED'
+      );
+
+      setHistory(hist);
+    } catch (err) {
+      console.error('Eroare la încărcarea istoricului', err);
+    }
+  };
+
   const handleCompleteTask = async (taskId) => {
     try {
       await api.put(`/tasks/${taskId}/complete`);
       // Reîncarcă task-urile după completare
       fetchTasks();
+
+      // dacă istoricul e deschis, îl actualizăm și pe el (minim, dar util)
+      if (showHistory) fetchHistory();
     } catch (err) {
       setError('Eroare la marcarea task-ului ca finalizat');
       console.error('Error completing task:', err);
@@ -94,7 +121,22 @@ const TaskList = ({ user, onLogout }) => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="tasks-section">
-        <h2>Lista Task-uri</h2>
+        {/* ✅ added: header with history toggle button */}
+        <div className="tasks-section-header">
+          <h2>Lista Task-uri</h2>
+
+          <button
+            className="history-toggle-btn"
+            onClick={() => {
+              const next = !showHistory;
+              setShowHistory(next);
+              if (!showHistory) fetchHistory();
+            }}
+          >
+            {showHistory ? 'Ascunde istoric' : 'Vezi istoric'}
+          </button>
+        </div>
+
         {tasks.length === 0 ? (
           <p className="no-tasks">Nu aveți task-uri momentan.</p>
         ) : (
@@ -132,6 +174,44 @@ const TaskList = ({ user, onLogout }) => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ✅ added: history section below */}
+        {showHistory && (
+          <div className="history-section">
+            <h2>Istoric Task-uri</h2>
+
+            {history.length === 0 ? (
+              <p className="no-tasks">Nu aveți task-uri în istoric.</p>
+            ) : (
+              <div className="tasks-grid">
+                {history.map((task) => (
+                  <div key={task.id} className="task-card">
+                    <div className="task-header">
+                      <h3>{task.title}</h3>
+                      <span
+                        className="task-status"
+                        style={{ backgroundColor: getStatusColor(task.status) }}
+                      >
+                        {getStatusText(task.status)}
+                      </span>
+                    </div>
+
+                    <div className="task-content">
+                      <p className="task-description">{task.description}</p>
+                      {task.dueDate && (
+                        <p className="task-due-date">
+                          <strong>Data limită:</strong> {new Date(task.dueDate).toLocaleDateString('ro-RO')}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* în istoric nu punem buton de complete */}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

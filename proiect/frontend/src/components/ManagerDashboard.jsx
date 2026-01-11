@@ -91,6 +91,16 @@ const ManagerDashboard = ({ user, onLogout }) => {
       console.error('Error assigning task:', err);
     }
   };
+  const handleCloseTask = async (taskId) => {
+  try {
+    await api.put(`/tasks/${taskId}/close`);
+    fetchTasks(); // refresh lista
+  } catch (err) {
+    setError('Eroare la închiderea task-ului');
+    console.error('Error closing task:', err);
+  }
+};
+
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -257,6 +267,18 @@ const ManagerDashboard = ({ user, onLogout }) => {
                       </select>
                     </div>
                   )}
+
+                  {task.status === 'COMPLETED' && user.role === 'manager' && (
+  <                 div className="task-actions">
+                    <button
+                    className="close-task-btn"
+                    onClick={() => handleCloseTask(task.id)}
+                    >
+                    Închide task
+                    </button>
+                </div>
+                )}
+
                 </div>
               ))}
             </div>
