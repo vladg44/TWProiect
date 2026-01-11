@@ -84,4 +84,23 @@ router.route('/:id')
     }
   });
 
+// Ruta pentru manageri sa vada echipa lor
+router.get('/team', async (req, res) => {
+  try {
+    // Verificam daca userul este manager
+    if (req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Doar managerii pot accesa aceasta ruta.' });
+    }
+
+    const teamMembers = await User.findAll({
+      where: { managerId: req.user.id },
+      attributes: { exclude: ['password'] }
+    });
+
+    res.json(teamMembers);
+  } catch (error) {
+    res.status(500).json({ error: 'Eroare la preluarea membrilor echipei' });
+  }
+});
+
 export default router;

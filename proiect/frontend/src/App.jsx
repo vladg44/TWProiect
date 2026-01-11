@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LoginPage from './components/LoginPage';
+import TaskList from './components/TaskList';
 import api from './api';
 import './App.css';
 
@@ -33,12 +34,17 @@ function App() {
   return (
     <div className="App">
       {user ? (
-        // Daca utilizatorul este logat, afiseaza un ecran de bun venit
-        <div className="welcome-container">
-          <h1>Welcome, {user.email}!</h1>
-          <p>You are now logged in.</p>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
+        // Daca utilizatorul este logat, afiseaza continutul potrivit rolului
+        user.role === 'executor' ? (
+          <TaskList user={user} onLogout={handleLogout} />
+        ) : (
+          // Pentru manageri si admini, afiseaza mesajul de bun venit (poate fi extins ulterior)
+          <div className="welcome-container">
+            <h1>Welcome, {user.email}!</h1>
+            <p>You are logged in as {user.role}.</p>
+            <button onClick={handleLogout}>Logout</button>
+          </div>
+        )
       ) : (
         // Daca nu, afiseaza pagina de login
         <LoginPage onLogin={handleLogin} />
