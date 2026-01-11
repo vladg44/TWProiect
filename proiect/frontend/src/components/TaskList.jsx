@@ -8,13 +8,13 @@ const TaskList = ({ user, onLogout }) => {
   const [error, setError] = useState('');
   const [manager, setManager] = useState(null);
 
-  // ✅ added for history
+  
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     fetchTasks();
-    // când se schimbă userul, resetăm istoricul din UI (opțional, dar safe)
+    // când se schimbă userul, resetăm istoricul din UI 
     setShowHistory(false);
     setHistory([]);
   }, [user.id]);
@@ -50,7 +50,7 @@ const TaskList = ({ user, onLogout }) => {
     }
   };
 
-  // ✅ added: history without new routes (reuses /tasks/user/:id)
+  
   const fetchHistory = async () => {
     try {
       const res = await api.get(`/tasks/user/${user.id}`);
@@ -71,7 +71,7 @@ const TaskList = ({ user, onLogout }) => {
       // Reîncarcă task-urile după completare
       fetchTasks();
 
-      // dacă istoricul e deschis, îl actualizăm și pe el (minim, dar util)
+      // dacă istoricul e deschis, îl actualizăm și pe el 
       if (showHistory) fetchHistory();
     } catch (err) {
       setError('Eroare la marcarea task-ului ca finalizat');
@@ -121,7 +121,7 @@ const TaskList = ({ user, onLogout }) => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="tasks-section">
-        {/* ✅ added: header with history toggle button */}
+        {/* header with history toggle button */}
         <div className="tasks-section-header">
           <h2>Lista Task-uri</h2>
 

@@ -314,4 +314,55 @@
   .create-task-form {
     padding: 15px;
   }
+
+  /* ===== Istoric task-uri executant ===== */
+
+.history-section {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.history-section h4 {
+  margin-bottom: 12px;
+  color: #333;
+  font-size: 16px;
+}
+
+.history-section .task-card {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: white;
+}
+
+.history-section .task-card strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.history-section .task-card p {
+  font-size: 13px;
+  color: #555;
+  margin: 4px 0;
+}
+
+.history-section .task-card span {
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+}
+
+/* select executant */
+.team-section select {
+  margin: 10px 0 15px;
+  padding: 6px;
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
 }

@@ -15,6 +15,9 @@ const ManagerDashboard = ({ user, onLogout }) => {
     assignedUserId: '',
     createUnassigned: false
   });
+  const [selectedExecutor, setSelectedExecutor] = useState(null);
+const [executorHistory, setExecutorHistory] = useState([]);
+
 
   useEffect(() => {
     console.log('ManagerDashboard user:', user);
@@ -62,6 +65,22 @@ const ManagerDashboard = ({ user, onLogout }) => {
       setLoading(false);
     }
   };
+
+  const fetchExecutorHistory = async (executorId) => {
+  try {
+    const res = await api.get('/tasks');
+
+    const history = res.data.filter(t =>
+      t.assignedUserId === executorId &&
+      (t.status === 'COMPLETED' || t.status === 'CLOSED')
+    );
+
+    setExecutorHistory(history);
+  } catch (err) {
+    console.error('Eroare la istoricul executantului', err);
+  }
+};
+
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
@@ -300,6 +319,41 @@ const ManagerDashboard = ({ user, onLogout }) => {
               ))}
             </div>
           )}
+
+          <h3>Istoric task-uri executant</h3>
+
+        <select
+        onChange={(e) => {
+            const id = Number(e.target.value);
+            setSelectedExecutor(id);
+            fetchExecutorHistory(id);
+        }}
+        >
+        <option value="">Selectează un executant...</option>
+        {teamMembers.map(member => (
+            <option key={member.id} value={member.id}>
+            {member.name} ({member.email})
+            </option>
+        ))}
+        </select>
+        {selectedExecutor && (
+  <div className="history-section">
+    <h4>Istoric task-uri</h4>
+
+    {executorHistory.length === 0 ? (
+      <p>Nu există task-uri finalizate.</p>
+    ) : (
+      executorHistory.map(task => (
+        <div key={task.id} className="task-card">
+          <strong>{task.title}</strong>
+          <p>{task.description}</p>
+          <span>{getStatusText(task.status)}</span>
+        </div>
+      ))
+    )}
+  </div>
+)}
+
         </div>
       </div>
     </div>
