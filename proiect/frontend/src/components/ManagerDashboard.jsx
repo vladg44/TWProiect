@@ -12,7 +12,8 @@ const ManagerDashboard = ({ user, onLogout }) => {
     title: '',
     description: '',
     dueDate: '',
-    assignedUserId: ''
+    assignedUserId: '',
+    createUnassigned: false
   });
 
   useEffect(() => {
@@ -53,7 +54,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
     }
 
     try {
-      const response = await api.get('/users/team');
+      const response = await api.get('/users/managed-users');
       setTeamMembers(response.data);
     } catch (err) {
       console.error('Error fetching team members:', err);
@@ -65,8 +66,14 @@ const ManagerDashboard = ({ user, onLogout }) => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/tasks', newTask);
-      setNewTask({ title: '', description: '', dueDate: '', assignedUserId: '' });
+      const taskData = {
+        title: newTask.title,
+        description: newTask.description,
+        dueDate: newTask.dueDate,
+        assignedUserId: newTask.createUnassigned ? null : newTask.assignedUserId || null
+      };
+      await api.post('/tasks', taskData);
+      setNewTask({ title: '', description: '', dueDate: '', assignedUserId: '', createUnassigned: false });
       setShowCreateForm(false);
       fetchTasks();
     } catch (err) {
@@ -163,12 +170,27 @@ const ManagerDashboard = ({ user, onLogout }) => {
               />
             </div>
             <div className="form-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={newTask.createUnassigned}
+                  onChange={(e) => setNewTask({
+                    ...newTask,
+                    createUnassigned: e.target.checked,
+                    assignedUserId: e.target.checked ? '' : newTask.assignedUserId
+                  })}
+                />
+                Creează task neasignat (starea OPEN)
+              </label>
+            </div>
+            <div className="form-group">
               <label>Asignează la:</label>
               <select
                 value={newTask.assignedUserId}
                 onChange={(e) => setNewTask({...newTask, assignedUserId: e.target.value})}
+                disabled={newTask.createUnassigned}
               >
-                <option value="">Lasă neasignat (OPEN)</option>
+                <option value="">Selectează un membru...</option>
                 {teamMembers.map(member => (
                   <option key={member.id} value={member.id}>
                     {member.name} ({member.email})

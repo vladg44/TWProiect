@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoginPage from './components/LoginPage';
 import TaskList from './components/TaskList';
+import ManagerDashboard from './components/ManagerDashboard';
 import api from './api';
 import './App.css';
 
@@ -38,12 +39,8 @@ function App() {
         user.role === 'executor' ? (
           <TaskList user={user} onLogout={handleLogout} />
         ) : (
-          // Pentru manageri si admini, afiseaza mesajul de bun venit (poate fi extins ulterior)
-          <div className="welcome-container">
-            <h1>Welcome, {user.email}!</h1>
-            <p>You are logged in as {user.role}.</p>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
+          // Pentru manageri si admini, afiseaza panoul manager
+          <ManagerDashboard user={user} onLogout={handleLogout} />
         )
       ) : (
         // Daca nu, afiseaza pagina de login

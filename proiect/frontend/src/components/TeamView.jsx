@@ -14,12 +14,12 @@ const TeamView = ({ user, onLogout }) => {
   const fetchTeamMembers = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/users/team');
+      const response = await api.get('/users/managed-users');
       setTeamMembers(response.data);
       setError('');
     } catch (err) {
-      setError('Eroare la încărcarea membrilor echipei');
-      console.error('Error fetching team members:', err);
+      setError('Eroare la încărcarea membrilor gestionați');
+      console.error('Error fetching managed users:', err);
     } finally {
       setLoading(false);
     }

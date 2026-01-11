@@ -38,6 +38,23 @@ router.route('/')
     }
   });
 
+  router.get('/managed-users', async (req, res) => {
+  try {
+    if (req.user.role !== 'manager') {
+      return res.status(403).json({ error: 'Doar managerii pot accesa aceasta ruta.' });
+    }
+
+    const managedUsers = await User.findAll({
+      where: { managerId: req.user.id },
+      attributes: { exclude: ['password'] }
+    });
+
+    res.json(managedUsers);
+  } catch (error) {
+    res.status(500).json({ error: 'Eroare la preluarea utilizatorilor gestionati' });
+  }
+});
+
 router.route('/:id')
   .get(async (req, res) => {
     try {
@@ -84,23 +101,25 @@ router.route('/:id')
     }
   });
 
-// Ruta pentru manageri sa vada echipa lor
-router.get('/team', async (req, res) => {
+// Ruta pentru manageri sa vada membrii pe care ii gestioneaza (pe baza managerId)
+router.get('/managed-users', async (req, res) => {
   try {
     // Verificam daca userul este manager
     if (req.user.role !== 'manager') {
       return res.status(403).json({ error: 'Doar managerii pot accesa aceasta ruta.' });
     }
 
-    const teamMembers = await User.findAll({
+    const managedUsers = await User.findAll({
       where: { managerId: req.user.id },
       attributes: { exclude: ['password'] }
     });
 
-    res.json(teamMembers);
+    res.json(managedUsers);
   } catch (error) {
-    res.status(500).json({ error: 'Eroare la preluarea membrilor echipei' });
+    res.status(500).json({ error: 'Eroare la preluarea utilizatorilor gestionati' });
   }
 });
+
+
 
 export default router;
