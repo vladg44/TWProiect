@@ -6,10 +6,26 @@ const TaskList = ({ user, onLogout }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [manager, setManager] = useState(null);
 
   useEffect(() => {
     fetchTasks();
   }, [user.id]);
+
+  useEffect(() => {
+    if (user.managerId) {
+      fetchManager();
+    }
+  }, [user.managerId]);
+
+  const fetchManager = async () => {
+    try {
+      const response = await api.get(`/users/${user.managerId}`);
+      setManager(response.data);
+    } catch (err) {
+      console.error('Error fetching manager:', err);
+    }
+  };
 
   const fetchTasks = async () => {
     try {
@@ -63,7 +79,12 @@ const TaskList = ({ user, onLogout }) => {
   return (
     <div className="task-list-container">
       <header className="task-list-header">
-        <h1>Task-urile Mele</h1>
+        <div className="title-section">
+          <h1>Task-urile Mele</h1>
+          {manager && (
+            <p className="manager-name">Manager: {manager.name}</p>
+          )}
+        </div>
         <div className="user-info">
           <span>Bună, {user.email}!</span>
           <button onClick={onLogout} className="logout-btn">Deconectare</button>
