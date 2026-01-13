@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LoginPage from './components/LoginPage';
 import TaskList from './components/TaskList';
 import ManagerDashboard from './components/ManagerDashboard';
+import AdminDashboard from './components/AdminDashboard'; // Importa componenta AdminDashboard
 import api from './api';
 import './App.css';
 
@@ -32,20 +33,24 @@ function App() {
     delete api.defaults.headers.common['X-User-ID'];
   };
 
+  const renderDashboard = () => {
+    if (!user) return <LoginPage onLogin={handleLogin} />;
+
+    switch (user.role) {
+      case 'admin':
+        return <AdminDashboard user={user} onLogout={handleLogout} />;
+      case 'manager':
+        return <ManagerDashboard user={user} onLogout={handleLogout} />;
+      case 'executor':
+        return <TaskList user={user} onLogout={handleLogout} />;
+      default:
+        return <LoginPage onLogin={handleLogin} />;
+    }
+  };
+
   return (
     <div className="App">
-      {user ? (
-        // Daca utilizatorul este logat, afiseaza continutul potrivit rolului
-        user.role === 'executor' ? (
-          <TaskList user={user} onLogout={handleLogout} />
-        ) : (
-          // Pentru manageri si admini, afiseaza panoul manager
-          <ManagerDashboard user={user} onLogout={handleLogout} />
-        )
-      ) : (
-        // Daca nu, afiseaza pagina de login
-        <LoginPage onLogin={handleLogin} />
-      )}
+      {renderDashboard()}
     </div>
   );
 }

@@ -21,15 +21,40 @@ const Task = sequelize.define("Task", {
     allowNull: false,
     defaultValue: "OPEN",
   },
-  dueDate: { 
+  dueDate: {
     type: DataTypes.DATE,
     allowNull: true,
-  },
-  // 'assignedUserId' este adaugat automat de relatia de mai jos
-});
+    validate: {
+      isNotInPast(value) {
+        // Permitem valorile null sau undefined
+        if (!value) return;
 
-// Relatii actualizate
-User.hasMany(Task, { foreignKey: "assignedUserId" });
-Task.belongsTo(User, { as: "assignedUser", foreignKey: "assignedUserId" });
+        // Comparam doar data, ignorand ora
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (new Date(value) < today) {
+          throw new Error('Data limita nu poate fi in trecut.');
+        }
+      }
+    }
+  },
+  creatorId: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    allowNull: true, // Poate fi null daca un admin creeaza fara sa fie asignat ca manager
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  assignedUserId: {
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true,
+      references: {
+          model: User,
+          key: 'id'
+      }
+  }
+});
 
 export default Task;

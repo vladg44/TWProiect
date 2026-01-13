@@ -8,6 +8,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [view, setView] = useState('all'); // 'all' or 'mine'
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -16,43 +17,43 @@ const ManagerDashboard = ({ user, onLogout }) => {
     createUnassigned: false
   });
   const [selectedExecutor, setSelectedExecutor] = useState(null);
-const [executorHistory, setExecutorHistory] = useState([]);
+  const [executorHistory, setExecutorHistory] = useState([]);
 
 
   useEffect(() => {
-    console.log('ManagerDashboard user:', user);
-    console.log('API headers:', api.defaults.headers);
-    fetchTasks();
     fetchTeamMembers();
   }, []);
 
+  useEffect(() => {
+    fetchTasks();
+  }, [view]); // Refetch tasks when view changes
+
   const fetchTasks = async () => {
-    // Check if user has manager/admin role
     if (!user || (user.role !== 'manager' && user.role !== 'admin')) {
       setError('Acces interzis. Doar managerii și administratorii pot vedea task-urile.');
+      setLoading(false);
       return;
     }
 
     try {
-      console.log('Fetching tasks...');
-      const response = await api.get('/tasks');
-      console.log('Tasks response:', response);
+      setLoading(true);
+      const url = view === 'mine' ? '/tasks/created-by-me' : '/tasks';
+      const response = await api.get(url);
       setTasks(response.data);
     } catch (err) {
       console.error('Error fetching tasks:', err);
-      console.error('Error response:', err.response);
       if (err.response && err.response.status === 401) {
         setError('Eroare de autentificare. Te rugăm să te reconectezi.');
       } else {
         setError('Eroare la încărcarea task-urilor');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchTeamMembers = async () => {
-    // Check if user has manager role
     if (!user || user.role !== 'manager') {
-      setLoading(false);
       return;
     }
 
@@ -61,8 +62,6 @@ const [executorHistory, setExecutorHistory] = useState([]);
       setTeamMembers(response.data);
     } catch (err) {
       console.error('Error fetching team members:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -94,9 +93,11 @@ const [executorHistory, setExecutorHistory] = useState([]);
       await api.post('/tasks', taskData);
       setNewTask({ title: '', description: '', dueDate: '', assignedUserId: '', createUnassigned: false });
       setShowCreateForm(false);
+      setError(''); // Curata eroarea la succes
       fetchTasks();
     } catch (err) {
-      setError('Eroare la crearea task-ului');
+      const errorMsg = err.response?.data?.error || 'Eroare la crearea task-ului';
+      setError(errorMsg);
       console.error('Error creating task:', err);
     }
   };
@@ -234,7 +235,12 @@ const [executorHistory, setExecutorHistory] = useState([]);
 
       <div className="dashboard-content">
         <div className="tasks-section">
-          <h2>Toate Task-urile</h2>
+          <div className="tasks-header">
+            <div className="view-toggle">
+              <button onClick={() => setView('all')} className={view === 'all' ? 'active' : ''}>Toate Task-urile</button>
+              <button onClick={() => setView('mine')} className={view === 'mine' ? 'active' : ''}>Task-urile Mele</button>
+            </div>
+          </div>
           {tasks.length === 0 ? (
             <p className="no-tasks">Nu există task-uri.</p>
           ) : (

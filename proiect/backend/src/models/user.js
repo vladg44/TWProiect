@@ -4,9 +4,8 @@ import Team from "./team.js";
 
 const User = sequelize.define("User", {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.INTEGER.UNSIGNED,
     primaryKey: true,
-    
     autoIncrement: true,
     },
     name: {
@@ -28,21 +27,17 @@ const User = sequelize.define("User", {
         defaultValue: "executor",
     },
     managerId: {
-        type: DataTypes.INTEGER,
-        allowNull: true,},
-
-        teamId: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: true,
+    },
+    teamId: {
         type: DataTypes.INTEGER,
         allowNull: true,
-    references: {
-      model: Team,
-      key: 'id',
+        references: {
+            model: Team,
+            key: 'id',
+        }
     }
-  }
-    });
-    //relatii
-    Team.hasMany(User, { foreignKey: "teamId" });
-    User.belongsTo(Team, { foreignKey: "teamId" });
-    
+});
 export default User;
 

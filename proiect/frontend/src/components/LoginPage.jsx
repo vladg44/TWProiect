@@ -42,8 +42,14 @@ const LoginPage = ({ onLogin }) => {
       setError('Please enter name, email and password for signup.');
       return;
     }
+    // Validare frontend
+    if (role === 'executor' && !managerIdInput) {
+        setError('Pentru rolul de executant, trebuie sa selectati un manager.');
+        return;
+    }
     const payload = { name, email, password, role };
-    if (role === 'executor' && managerIdInput) payload.managerId = Number(managerIdInput);
+    // Ataseaza managerId doar daca este selectat (ar trebui sa fie mereu pt executant)
+    if (managerIdInput) payload.managerId = Number(managerIdInput);
 
     api.post('/auth/register', payload)
       .then((res) => {
@@ -103,9 +109,9 @@ const LoginPage = ({ onLogin }) => {
 
             {role === 'executor' && (
               <div className="form-group">
-                <label htmlFor="managerId">Manager (optional):</label>
+                <label htmlFor="managerId">Manager:</label>
                 <select id="managerId" value={managerIdInput} onChange={(e) => setManagerIdInput(e.target.value)}>
-                  <option value="">-- None --</option>
+                  <option value="">-- Alege un manager --</option>
                   {managers.map(m => (
                     <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
                   ))}

@@ -14,7 +14,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #E0B0FF ;
+  background-color: #f4f0f8; /* Fundal mov deschis */
 }
 
 .login-form {
@@ -44,19 +44,19 @@
   color: #555;
 }
 
-.form-group input {
+.form-group input, .form-group select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-  box-sizing: border-box; /* Asigura ca padding-ul nu afecteaza latimea totala */
+  box-sizing: border-box; 
 }
 
 button {
   width: 100%;
   padding: 0.75rem;
   border: none;
-  background-color: #7e6191;
+  background-color: #6a0dad; /* Mov principal */
   color: white;
   font-size: 1rem;
   font-weight: 600;
@@ -66,7 +66,7 @@ button {
 }
 
 button:hover {
-  background-color: #7e6191;
+  background-color: #580a94; /* Mov mai inchis la hover */
 }
 
 .error-message {

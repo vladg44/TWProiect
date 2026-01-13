@@ -9,13 +9,30 @@ const router = express.Router();
 // Acum, fiecare cerere catre /api/tasks/... trebuie sa aiba header-ul X-User-ID.
 router.use(getUser);
 
+// Ruta noua pentru a vedea taskurile create de managerul logat
+router.get('/created-by-me', isManager, async (req, res) => {
+    try {
+        const tasks = await Task.findAll({
+            where: { creatorId: req.user.id },
+            include: [{ model: User, as: 'assignedUser' }]
+        });
+        res.json(tasks);
+    } catch (error) {
+        res.status(500).json({ error: 'Eroare la preluarea task-urilor create' });
+    }
+});
 
 // --- Grupat pentru calea '/' ---
 router.route('/')
     // Doar managerii si adminii pot vedea TOATE taskurile
     .get(isManagerOrAdmin, async (req, res) => {
         try {
-            const tasks = await Task.findAll({ include: { model: User, as: 'assignedUser' } });
+            const tasks = await Task.findAll({ 
+                include: [
+                    { model: User, as: 'assignedUser' },
+                    { model: User, as: 'creator' }
+                ] 
+            });
             res.json(tasks);
         } catch (error) {
             res.status(500).json({ error: 'Eroare la preluarea task-urilor' });
@@ -25,11 +42,22 @@ router.route('/')
     .post(isManager, async (req, res) => {
         try {
             const { title, description, dueDate, assignedUserId } = req.body;
-            // Fortam statusul 'OPEN' la creare, conform cerintelor
-            const newTask = await Task.create({ title, description, status: 'OPEN', dueDate, assignedUserId });
+            // Fortam statusul 'OPEN' la creare si adaugam creatorul
+            const newTask = await Task.create({ 
+                title, 
+                description, 
+                status: 'OPEN', 
+                dueDate, 
+                assignedUserId, 
+                creatorId: req.user.id 
+            });
             res.status(201).json(newTask);
         }
         catch (error) {
+            if (error.name === 'SequelizeValidationError') {
+                const messages = error.errors.map(err => err.message);
+                return res.status(400).json({ error: messages.join(', ') });
+            }
             res.status(500).json({ error: 'Eroare la crearea task-ului' });
         }
     });

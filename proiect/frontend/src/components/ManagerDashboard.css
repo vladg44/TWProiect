@@ -3,6 +3,8 @@
   margin: 0 auto;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f0f8; /* Fundal mov deschis */
+  border-radius: 10px;
 }
 
 .manager-header {
@@ -11,7 +13,7 @@
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid #dcd6e4; /* Nuanta de mov */
 }
 
 .manager-header h1 {
@@ -59,7 +61,7 @@
 }
 
 .create-task-btn {
-  background-color: #28a745;
+  background-color: #6a0dad; /* Mov principal */
   color: white;
   border: none;
   padding: 12px 24px;
@@ -71,7 +73,7 @@
 }
 
 .create-task-btn:hover {
-  background-color: #218838;
+  background-color: #580a94; /* Mov mai inchis */
 }
 
 .create-task-form {
@@ -131,7 +133,7 @@
 }
 
 .submit-btn {
-  background-color: #007bff;
+  background-color: #6a0dad; /* Mov principal */
   color: white;
   border: none;
   padding: 10px 20px;
@@ -143,7 +145,7 @@
 }
 
 .submit-btn:hover {
-  background-color: #0056b3;
+  background-color: #580a94; /* Mov mai inchis */
 }
 
 .dashboard-content {
@@ -158,6 +160,36 @@
   margin-bottom: 20px;
   font-size: 1.5em;
 }
+
+.tasks-header {
+  margin-bottom: 20px;
+}
+
+.view-toggle {
+  display: flex;
+  background-color: #e9e4f0;
+  border-radius: 8px;
+  padding: 5px;
+  width: fit-content;
+}
+
+.view-toggle button {
+  padding: 10px 20px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.view-toggle button.active {
+  background-color: #fff;
+  color: #6a0dad; /* Mov principal */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
 
 .no-tasks,
 .no-members {

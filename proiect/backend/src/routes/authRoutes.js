@@ -66,6 +66,10 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
+    if (error.name === 'SequelizeValidationError') {
+        const messages = error.errors.map(err => err.message);
+        return res.status(400).json({ error: messages.join(', ') });
+    }
     console.error('Eroare la register:', error);
     res.status(500).json({ error: 'Eroare la inregistrare.' });
   }
