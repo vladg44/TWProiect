@@ -3,6 +3,7 @@ import LoginPage from './components/LoginPage';
 import TaskList from './components/TaskList';
 import ManagerDashboard from './components/ManagerDashboard';
 import AdminDashboard from './components/AdminDashboard'; // Importa componenta AdminDashboard
+import QuoteOfTheDay from './components/QuoteOfTheDay';
 import api from './api';
 import './App.css';
 
@@ -50,6 +51,7 @@ function App() {
 
   return (
     <div className="App">
+      <QuoteOfTheDay />
       {renderDashboard()}
     </div>
   );

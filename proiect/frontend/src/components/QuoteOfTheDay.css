@@ -1,0 +1,23 @@
+.quote-container {
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px;
+    border-left: 5px solid #007bff;
+    background-color: #f8f9fa;
+    font-family: 'Georgia', serif;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.quote-content {
+    font-size: 1.2em;
+    font-style: italic;
+    color: #343a40;
+    margin-bottom: 10px;
+}
+
+.quote-author {
+    font-size: 1em;
+    font-weight: bold;
+    color: #495057;
+    text-align: right;
+}
