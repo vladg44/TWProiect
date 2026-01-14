@@ -15,17 +15,17 @@ import adminRoutes from './routes/adminRoutes.js';
 dotenv.config();
 
 const app = express();
+
+const corsOptions = {
+  origin: 'https://proiectfilgamersh.netlify.app',
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
 const PORT = process.env.PORT || 3000;
 
 
 app.use(express.json());
-
-// Enable CORS for frontend (adjust origin as needed)
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-User-ID']
-}));
 
 const startServer = async () => {
   try {
